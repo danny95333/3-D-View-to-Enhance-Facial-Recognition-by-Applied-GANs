@@ -15,3 +15,4 @@
 ![image](https://github.com/danny95333/siamese-GAN-model-to-generate-frontal-face/blob/master/3rd_output/synthesis_result_iteration_35500.png)
 <br>
 <br>**NOTICE**: netD_70000.pth and netG_70000.pth are the weights files of 1st model. The **2nd&3rd model's weights files** are too big to upload on the github. If your condition is not allowed to train this model and want to run the pretained model, you can contact me and leave your email address.
+## experiment record is in record.txt file
