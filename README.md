@@ -6,7 +6,7 @@
 ## 2nd version
 *siamese_GAN_19_2.py* is the main training file
 <br>2nd version was based on the 1st version with a little modify. I use the frontal Ground Truth image as 'real data' to train D-net to make the supervison stronger. Standard light condition and fixed frontal pose make the synthesis pic more clear and real.
-![image](https://github.com/danny95333/siamese-GAN-model-to-generate-frontal-face/blob/master/2nd_output/result_19_2(2).png)
+<br>![image](https://github.com/danny95333/siamese-GAN-model-to-generate-frontal-face/blob/master/2nd_output/result_19_2(2).png)
 ## 3rd version
 *GAN_train_3rd.py/GAN_dataset_3rd.py/GAN_model_3rd.py* are the main training/dataload/model files
 <br>3rd version was create base on the idea of add **random noise** in the G-net and give G-net some supervision information about **generate specific several pose face**(random pose code), "Face De-Occlusion and De-Profiling via a Generative Adversarial Network" paper. At the same time, I got some GANs training tricks, which shared by others on Chinese "ZHIHU". 
