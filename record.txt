@@ -1,0 +1,160 @@
+siamese_train   original train file  /without load .pth/clear facial features, but blurry facial contour
+siamese_train_2   (load 0620-10w.pth)   /give L1 loss a bigger weight(coefficient)
+siamese_train_3   (load-0620-10w.pth)   /total loss is l1 loss/only train L1
+siamese_train_M_1   (load-0620-10w.pth)   /output:siamese_output_M_1/add mask_20/aim at make the training be more sensitive to facial contour/total loss is L1 loss
+siamese_train_M_2   (load-train-3-28000.pth)   /output:siamese_output_M_2/add mask_20/use L2 instead of L1/freeze G-net's encoder part
+siamese_train_M_3   (load-train-3-28000.pth)   /output:siamese_output_M_3/add mask_20/still use L1/freeze G-net's encoder part
+-----------------------------------------------
+siamses_GAN_1   (load:31600-base on “siamese_M_2” )   /output:siamese_GAN_1/add Discriminator(linear FC as head of D-net)/freeze G's decoder/train G's encoder
+siamese_GAN_2   (load:31600-base on “siamese_M_2” )   /output:siamese_GAN_2/add Discriminator(use conv layer with bigger convolution kernel as the head of D-net/freeze G's decoder/train G's encoder
+siamese_GAN_SR (load:31600-base on “siamese_M_2”)   /output:siamese_GAN_SR/add Discriminator(use SR-GAN's Dnet model, and add WGANs tricks)/freeze G's decoder part/train G's encoder part
+	      WGANs tricks: 
+	      1.remove D's last layer's sigmoid
+	      2.get rid of logits in loss function
+	      3.use 'torch.clamp' to clip the weigths to some [-0.01, 0.01]
+	      4.Use optimizer like RMSprop instead of Adam
+result:
+for '1': D-net is too good to train G-net, after 5w iteration: errG_loss = 3.92 errD_real/fake = 0.02/0.03
+for '2': it seems that errD_real/fake and errG are both not bad, but modal collapse, lots of artifacts and noise point, no paticular graph
+for 'SR+wGAN': sth wrong with the self-made loss function, losses went down below 0. Also, model collapse
+
+It's hard to train GANs even with WGANs instruction.
+-----------------------------------------------
+start from the begining(use linear version)
+7.9
+siamese_GAN_1_2   0.001-10-10-10-10-10-1 keep the result
+result: could generate recognizable facial feature
+-----------------------------------------------
+7.10
+siamese_GAN_1    loss:1-1-1-1-1-1-100
+result: D's loss went down so fast, from fake/real-0.7/0.7 to fake/real-0.1/0.04
+	as for G,gan_loss grown up from 0.7 to around 3.2
+Might the gradient is lead by L1, which has a bigger coefficient, the ability of generate real image lack of enouh attention, much slower than the growth speed of D-net
+-----------------------------------------------
+7.10 
+siamese_GAN_1_3   0.001-10-10-10-10-10-1 keep training(load from yesterday's weights' file)
+result: after 5w iter, G_loss grow up from 0.06 to 0.5, but still has much clear human facial features
+Guess: might the supervise information is lead by the L1 loss much more than Gan_loss
+-----------------------------------------------
+7.11 
+aim at minimize the ratio between L1 and Gan_loss
+siamese_GAN_1   10gan-1-1-1-1-20L1 
+result: not so good, model collapse, gan's coefficient is too big. Tends to generate the same imgs with lots of artifacts and noise, no clear facial features
+[1/50000] errD_real: 0.6489 
+[1/50000] errD_fake: 0.7868 
+[1/50000] errS_GAN: 0.6380 
+[50000/50000] errD_real: 0.1246 
+              errD_fake: 0.1581 
+              errS_GAN: 2.0272 
+Guess: try make some attempts based on GAN_1_2, reduce the D-nets' update frequence tomorrow
+-----------------------------------------------
+7.12
+siamese_GAN_11_2   (load:GAN_1_3_47200pth)   /freeze D-net/add mask to train L1/increase gan's coefficient
+result: lots of artifacts
+Guess: freeze is a bad idea, D's loss is really low doesn't mean it has ability to recognize real or fake image. Poor G-net can lead D-net growing in a wrong way
+
+Try load from GAN_1_2, and increase gan's coeff
+-----------------------------------------------
+7.13
+siamese_GAN_1   (load GAN_1_2_11400pth)  decrease D's update freq(from 6iter to 8iter) and D's learning rate：0.00001
+result: net-G didn't convergence
+		[15222/50000] errD_real: 0.4605 
+	        errD_fake: 0.8116 
+	        errS_GAN: 0.6554 
+
+7.13-2
+siames_GAN_12  (load GAN_1_2_11400pth)  decrease D's update freq(from 6iter to 8iter) and D's learning rate: 0.000001
+result:		[15268/50000] errD_real: 0.2872605 
+	    	errD_fake: 1.2870417 
+        	errS_GAN: 0.4203835 
+Guess: D is already good enough, decrease lr is useless when we load from previous model, model collapse
+
+IDEA: G-net and D-net still have to be in the same phase, if we train D to have a better performance, might use a poor quality image generate by poor G-net, which the decrease of D's loss didn't make any sense. Then we want to rectify it becomes impossible
+-----------------------------------------------
+7.14 
+give up load model, the coeffienct can't change suddenly.The gradient map will change totally at the same time.
+siamese_GAN_1   /lower the contrastive_I loss, let the training pay more attention on gan/print loss every 1k iter/0.1gan-1-1-1-1-0.1contraI-1
+
+7.14-2
+siamese_GAN_13  /same coefficient/try He&Xiaver initialization/figure out if the problem is the bad performance of Gaussian random
+
+result: He/Xavier didn't gave much progress, model collapse for both 2 models
+-----------------------------------------------
+7.15 
+!!modify the model, give up the residual pth in the G-net
+
+siamese_GAN_1   5gan-1-1-1-1-1-1      iterD:4:6   s_lr = 0.02
+
+siamese_GAN_13   1-1-1-1-1-1-1        iterD:4:6   s_lr = 0.02
+
+result: gan_loss went up rapidly
+----------------------------------------------- 
+7.15
+siamese_GAN_1   2gan-1-1-1-1-1-1     iterD:2:4   s_lr = 0.02
+result: the bad performance is not caused by the poor D
+
+siamese_GAN_13  0.1gan-1-1-1-1-1-1      iterD:4:6   s_lr = 0.02
+result: keep! we have some 'real' pic's feature, but pose and light is quite confused
+-----------------------------------------------
+7.16
+when I look at the printed loss, we know the encoder part did really good job(loss went down obviously), but the generated img still loss pose and light information, the problem might caused by the decoder part
+So, increase the supervise information(L1 and GAN)
+siamese_GAN_16 0.1gan-1-1-1-1-1-5L1      iterD:4:6   s_lr = 0.02
+siamese_GAN_16_1 0.1gan-1-1-1-1-0.5contraI-5L1     iterD:4:6   s_lr = 0.02
+
+result: siamese_GAN_16 (keep),siamese_GAN_16_1(give up) has some improve, but the pose and light information are still mess
+------------------------------------------------
+7.17
+use frontal face image as D-net's real image supervise information
+
+siamese_GAN_17  1gan-1-1-1-1-1-5L1        iterD:4:6   s_lr = 0.02
+increase gan(stable or not)
+siamese_GAN_17_1 0.5gan-1-1-1-1-1-1    iterD:4:6   s_lr = 0.02
+
+result: unstable, D went down really fast. model collaps
+-------------------------------------------------
+7.18
+siamese_GAN_18   
+(based on the good performace of"siamese_GAN_16":0.1gan-1-1-1-1-1-5L1,but give light loss more weights)
+0.1gan-1-1-1-1-1-5classL-5L1
+result: fail, still lose light information
+------------------------------------------------
+7.19
+siamese_GAN_19_1   (based on the good performace of"siamese_GAN_16":0.1gan-1-1-1-1-1-5L1)
+0.1gan-1-1-1-1-1-5L1
+BUT the GT use the standard light frontal face image(for D-net)
+
+Result: the generate img before 19800 iter are pretty good!(keep)
+but after 19800 iter, model become unstable, model collapse.
+-----------------------------------------------
+7.20
+siamese_GAN_20
+based on the siamese_GAN_19's good performance, modify the model with WGANs instruction, and tuning from the beginning
+
+train_theta     1-1-1 iterD:4:6   s_lr = 0.02
+train_theta_1   0.1gan-1-1 iterD:4:6   s_lr = 0.02
+
+result: bad, nothing make sense
+----------------------------------------------
+7.21
+according to the ZHIHU, give the supervise mission to D-net. Cause D-net, basically, is the discriminator network which responsible for the supervise problem.
+modify the model...
+----------------------------------------------
+7.27
+G-net only responsible for gan_loss, D-net responsible for ligh/pose/identity/gan loss
+because we give the supervise work to D-net, we don't need G-net to be siamese network anymore, contrastive loss neither.
+give all the loss same coefficient, then the performance is good enough
+
+
+
+
+
+
+
+
+
+
+
+
+
+
