@@ -2,7 +2,7 @@
 ## 1st version
 *siamese_GAN_1st.py* is the main training file
 <br>1st version used siamese network as G-Net, and added a classic Discriminator Network as D-Net, and use random image as the ‘real data’ to train D-net. In this way, I didn't a good enough result to make the synthesis frontal image.
-![image](https://github.com/danny95333/siamese-GAN-model-to-generate-frontal-face/blob/master/1st_output/fake_samples_iteration_44000.png)
+![image](https://github.com/danny95333/siamese-GAN-model-to-generate-frontal-face/blob/master/1st_output/fake_samples_iteration_45800.png)
 ## 2nd version
 *siamese_GAN_19_2.py* is the main training file
 <br>2nd version was based on the 1st version with a little modify. I use the frontal Ground Truth image as 'real data' to train D-net to make the supervison stronger. Standard light condition and fixed frontal pose make the synthesis pic more clear and real.
@@ -13,4 +13,4 @@
 <br>**"If you have supervise information, like ground truth, give it to D-net and let D-net do more things more than judge whether the pic is real or fake"**
 <br>So, I give up the idea that use Siamese, a dual channel network, as G-Net and give such supervise mission to D-net, G-net only have 1 loss to minimize. The 'pose/id/light' supervise information pass to D-net and D-net are responsible for minimizing these losses.
 ![image](https://github.com/danny95333/siamese-GAN-model-to-generate-frontal-face/blob/master/3rd_output/synthesis_result_iteration_35500.png)
-<br>**NOTICE**: netD_70000.pth and netG_70000.pth are the weights files of 1st model. The **3rd model's weights files** are too big to upload on the github. If your condition is not allowed to train this model and want to run the pretained model, you can contact me and leave your email address.
+<br>**NOTICE**: netD_70000.pth and netG_70000.pth are the weights files of 1st model. The **2nd&3rd model's weights files** are too big to upload on the github. If your condition is not allowed to train this model and want to run the pretained model, you can contact me and leave your email address.
