@@ -1,4 +1,7 @@
 # Use GANs model to Generate frontal human faces based on profile faces
+All the input data are from MultiPIE dataset, 9 different identity faces each time with different poses and illumination.
+![input](https://github.com/danny95333/3-D-View-to-Enhance-Facial-Recognition-by-Applied-GANs/blob/master/input_samples_iteration_200.png)
+
 ## 1st version
 *siamese_GAN_1st.py* is the main training file
 <br>1st version used siamese network as G-Net, and added a classic Discriminator Network as D-Net, and use random image as the ‘real data’ to train D-net. In this way, I didn't a good enough result to make the synthesis frontal image.
