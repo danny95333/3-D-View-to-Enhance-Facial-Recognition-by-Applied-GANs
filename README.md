@@ -4,7 +4,7 @@ All the input data are from MultiPIE dataset, 9 different identity faces each ti
 
 ## 1st version
 *siamese_GAN_1st.py* is the main training file
-<br>1st version used siamese network as G-Net, and added a classic Discriminator Network as D-Net, and use random image as the ‘real data’ to train D-net. In this way, I didn't a good enough result to make the synthesis frontal image.
+<br>1st version used siamese network as G-Net, and added a classic Discriminator Network as D-Net, and use random image as the ‘real data’ to train D-net. In this way, it's not a good enough way to generate the frontal image.
 ![image](https://github.com/danny95333/siamese-GAN-model-to-generate-frontal-face/blob/master/1st_output/fake_samples_iteration_45800.png)
 ## 2nd version
 *siamese_GAN_19_2.py* is the main training file
